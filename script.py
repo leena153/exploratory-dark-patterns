@@ -74,7 +74,7 @@ class Scraper:
 
         timestamp = int(time.time())
         unique_id = str(uuid.uuid4())
-        filename = f"{timestamp}_{unique_id}.txt"
+        filename = f"output/{timestamp}_{unique_id}.txt"
         with open(filename, "w") as file:
             file.write(f"Text:\n{text}\n")
 
@@ -101,7 +101,7 @@ class Scraper:
 
             timestamp = int(time.time())
             unique_id = str(uuid.uuid4())
-            filename = f"{timestamp}_{unique_id}.txt"
+            filename = f"output/{timestamp}_{unique_id}.txt"
             with open(filename, "w") as file:
                 file.write(f"Text:\n{text}\n")
 
