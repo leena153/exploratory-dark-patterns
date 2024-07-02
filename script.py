@@ -25,7 +25,7 @@ class Scraper:
 
             with ThreadPoolExecutor() as executor:
                 for link in child_links:
-                    if link is not None or link != "/":
+                    if link is not None and link != "/":
                         final_link = (
                             self.parent_domain + link if link.startswith("/") else link
                         )
@@ -75,7 +75,7 @@ class Scraper:
         timestamp = int(time.time())
         unique_id = str(uuid.uuid4())
         filename = f"output/{timestamp}_{unique_id}.txt"
-        with open(filename, "w") as file:
+        with open(filename, "w",encoding="utf-8") as file:
             file.write(f"Text:\n{text}\n")
 
         for link in soup.find_all("a"):
@@ -102,8 +102,10 @@ class Scraper:
             timestamp = int(time.time())
             unique_id = str(uuid.uuid4())
             filename = f"output/{timestamp}_{unique_id}.txt"
-            with open(filename, "w") as file:
+            with open(filename, "w", encoding="utf-8") as file:
                 file.write(f"Text:\n{text}\n")
+
+            print("passed")
 
         except requests.RequestException as e:
             print(f"Request failed for {url}: {e}")
@@ -119,5 +121,7 @@ class Scraper:
 
 sc = Scraper(
     1,
-    "https://www.myntra.com/cargo?rawQuery=cargo",
+    # "https://www.myntra.com/cargo?rawQuery=cargo", 
+    # "https://www.hpsingh.info/",
+    # "https://www.amazon.in/",
 )
