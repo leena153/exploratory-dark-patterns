@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from concurrent.futures import ThreadPoolExecutor
 import time
 import random
@@ -7,10 +7,16 @@ from bs4 import BeautifulSoup
 import pandas as pd
 import os
 from datetime import datetime
+import csv
+from pydantic import BaseModel
 
 
 app = FastAPI()
 
+class DataItem(BaseModel):
+    parent_url: str
+    child_link: str
+    content: str
 
 with open("user_agents.txt", "r") as f:
     user_agents = [line.strip() for line in f.readlines()]
@@ -77,12 +83,10 @@ def slice_into_chunks(lst, chunk_size):
     for i in range(0, len(lst), chunk_size):
         yield lst[i : i + chunk_size]
 
-
-def save_to_tsv(data, file_path):
-    with open(file_path, "w", encoding="utf-8") as file:
-        for row in data:
-            file.write("\t".join(row) + "\n")
-
+def save_to_csv(data, file_path):
+    with open(file_path, "w", newline="", encoding="utf-8") as file:
+        writer = csv.writer(file)
+        writer.writerows(data)
 
 def scrape_reviews_threaded(url_list, output_dir, chunk_size=5):
     start_time = time.time()
@@ -135,14 +139,39 @@ async def scrape():
         "https://www.fashionworld.co.uk/shop/black-maxi-faux-fur-coat/dr491/product/details/show.action?pdBoUid=1015&optionColour=Black&pdpClick=true",
         "https://www.fashionworld.co.uk/shop/albza-closed-toe-slippers-wide-e-fit-simply-comfort/yf715/product/details/show.action?pdBoUid=1015&optionColour=Grey&pdpClick=true",
     ]
-    tsv_file_path = scrape_reviews_threaded(list_of_urls, output_dir)
-    print("Saved to", tsv_file_path)
+    csv_file_path = scrape_reviews_threaded(list_of_urls, output_dir)
+    print("Saved to", csv_file_path)
     return {"message": "Scraping completed successfully."}
     # else:
     #     raise HTTPException(
     #         status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
     #         detail="Invalid Amazon link. Please put the product link correctly.",
     #     )
+
+
+@app.post("/post")
+async def save_data_csv(data: DataItem):
+    try:
+        output_dir = "output"
+        if not os.path.exists(output_dir):
+            os.makedirs(output_dir)
+
+        timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+
+        csv_filename = f"{output_dir}/data_{timestamp}.csv"
+        
+        with open(csv_filename, mode='w', newline='', encoding='utf-8') as file:
+            writer = csv.writer(file)
+                     
+            if os.stat(csv_filename).st_size == 0:
+                writer.writerow(["Parent URL", "Child Link", "Content"])
+            writer.writerow([data.parent_url, data.child_link, data.content])
+
+        return {"message": "Data saved successfully"}
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to save data: {str(e)}")
+
 
 
 if __name__ == "__main__":
