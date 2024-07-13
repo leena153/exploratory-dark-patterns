@@ -6,7 +6,7 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
 
     fetch("http://localhost:8000/post", {
       method: "POST",
-      body: JSON.stringify({ data: request.data }),
+      body: request.data,
       headers: {
         "Content-Type": "application/json",
       },
