@@ -80,16 +80,20 @@ async function getChildLinks(url) {
 
   await page.goto(url, { waitUntil: "domcontentloaded" });
 
-  const links = await page.evaluate(() => {
+  const links = await page.evaluate(async () => {
     const anchors = Array.from(document.querySelectorAll("a"));
     const hostname = window.location.hostname;
     const uniqueLinks = new Set();
-    anchors.forEach((anchor) => {
+    for (const anchor of anchors) {
       const href = anchor.href;
-      if (new URL(href).hostname === hostname) {
-        uniqueLinks.add(href);
+      try {
+        if (new URL(href).hostname === hostname) {
+          uniqueLinks.add(href);
+        }
+      } catch (error) {
+        console.error(`Error occurred while processing link: ${href}`);
       }
-    });
+    }
     return Array.from(uniqueLinks);
   });
   await browser.close();
@@ -97,7 +101,7 @@ async function getChildLinks(url) {
 }
 
 (async () => {
-  const url = "https://hpsingh.info/";
+  const url = "https://myntra.com/";
   const links = await getChildLinks(url);
 
   const results = await withBrowser(async (browser) => {
