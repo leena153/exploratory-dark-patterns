@@ -121,7 +121,7 @@ def scrape_reviews_threaded(url_list, output_dir, chunk_size=5):
                     print(f"Error scraping {url}: {e}")
 
     tsv_file_path = os.path.join(dir_to_save, f"results_{today_str}.tsv")
-    save_to_tsv(results, tsv_file_path)
+    save_to_csv(results, tsv_file_path)
 
     end_time = time.time()
     print(
@@ -142,11 +142,6 @@ async def scrape():
     csv_file_path = scrape_reviews_threaded(list_of_urls, output_dir)
     print("Saved to", csv_file_path)
     return {"message": "Scraping completed successfully."}
-    # else:
-    #     raise HTTPException(
-    #         status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-    #         detail="Invalid Amazon link. Please put the product link correctly.",
-    #     )
 
 
 @app.post("/post")

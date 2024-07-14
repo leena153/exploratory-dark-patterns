@@ -1,2 +1,4 @@
 dark-patterns.csv
 output/*
+**/node_modules/*
+**/screenshots/*
